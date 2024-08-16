@@ -1,7 +1,8 @@
 PATH
   remote: .
   specs:
-    dorian-each (0.4.1)
+    dorian-commit (0.4.1)
+      git
 
 GEM
   remote: https://rubygems.org/
@@ -17,6 +18,8 @@ GEM
       minitest (>= 5.1)
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
+    addressable (2.8.7)
+      public_suffix (>= 2.0.2, < 7.0)
     ast (2.4.2)
     base64 (0.2.0)
     bigdecimal (3.1.8)
@@ -25,6 +28,11 @@ GEM
     diff-lcs (1.5.1)
     dorian-times (0.5.0)
     drb (2.2.1)
+    git (2.1.1)
+      activesupport (>= 5.0)
+      addressable (~> 2.8)
+      process_executer (~> 1.1)
+      rchardet (~> 1.8)
     i18n (1.14.5)
       concurrent-ruby (~> 1.0)
     json (2.7.2)
@@ -35,9 +43,12 @@ GEM
     parser (3.3.4.2)
       ast (~> 2.4.1)
       racc
+    process_executer (1.1.0)
+    public_suffix (6.0.1)
     racc (1.8.1)
     rack (3.1.7)
     rainbow (3.1.1)
+    rchardet (1.8.0)
     regexp_parser (2.9.2)
     rexml (3.3.5)
       strscan
@@ -95,7 +106,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  dorian-each!
+  dorian-commit!
   dorian-times
   rspec
   rubocop-rails-omakase

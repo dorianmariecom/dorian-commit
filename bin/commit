@@ -1,12 +1,44 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-if ARGV.size != 1 || ARGV[0] == "--help" || ARGV[0] == "-h"
-  puts "USAGE: ... | commit CODE"
-  exit
+require "json"
+require "net/http"
+require "uri"
+require "git"
+
+abort "USAGE: commit" if ARGV.any?
+
+TOKEN_FILE = File.join(Dir.home, ".commit")
+PROMPT = "simple, clear, short, lowercase commit message for the following diff:"
+
+if File.exist?(TOKEN_FILE)
+  TOKEN = File.read(TOKEN_FILE).strip
+else
+  print "token: "
+  TOKEN = gets.strip
+  File.write(TOKEN_FILE, TOKEN)
+  puts "token written to #{TOKEN_FILE}"
 end
 
-$stdin.commit_line do |it|
-  it.strip!
-  eval(ARGV.first)
-end
+uri = URI("https://api.openai.com/v1/chat/completions")
+http = Net::HTTP.new(uri.host, uri.port)
+http.use_ssl = true
+
+request = Net::HTTP::Post.new(uri.path, {
+  "Content-Type" => "application/json",
+  "Authorization" => "Bearer #{TOKEN}"
+})
+
+request.body = {
+  model: "gpt-4o",
+  messages: [
+    { role: "system", content: PROMPT },
+    { role: "user", content: `git diff --staged` }
+  ],
+}.to_json
+
+response = http.request(request)
+json = JSON.parse(response.body)
+message = response_body.dig('choices', 0, 'message', 'content').strip
+Git.open(".").commit(message)
+puts message
