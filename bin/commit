@@ -20,6 +20,10 @@ else
   puts "token written to #{TOKEN_FILE}"
 end
 
+STAGED = `git diff --staged`
+
+abort "no staged files" if STAGED.strip.empty?
+
 uri = URI("https://api.openai.com/v1/chat/completions")
 http = Net::HTTP.new(uri.host, uri.port)
 http.use_ssl = true
@@ -33,12 +37,12 @@ request.body = {
   model: "gpt-4o",
   messages: [
     { role: "system", content: PROMPT },
-    { role: "user", content: `git diff --staged` }
+    { role: "user", content: STAGED }
   ],
 }.to_json
 
 response = http.request(request)
 json = JSON.parse(response.body)
-message = response_body.dig('choices', 0, 'message', 'content').strip
+message = json.dig('choices', 0, 'message', 'content').strip
 Git.open(".").commit(message)
 puts message
