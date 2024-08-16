@@ -9,7 +9,8 @@ require "git"
 abort "USAGE: commit" if ARGV.any?
 
 TOKEN_FILE = File.join(Dir.home, ".commit")
-PROMPT = "simple, clear, short, lowercase commit message for the following diff:"
+PROMPT =
+  "simple, clear, short, lowercase commit message for the following diff:"
 
 if File.exist?(TOKEN_FILE)
   TOKEN = File.read(TOKEN_FILE).strip
@@ -28,21 +29,25 @@ uri = URI("https://api.openai.com/v1/chat/completions")
 http = Net::HTTP.new(uri.host, uri.port)
 http.use_ssl = true
 
-request = Net::HTTP::Post.new(uri.path, {
-  "Content-Type" => "application/json",
-  "Authorization" => "Bearer #{TOKEN}"
-})
+request =
+  Net::HTTP::Post.new(
+    uri.path,
+    {
+      "Content-Type" => "application/json",
+      "Authorization" => "Bearer #{TOKEN}"
+    }
+  )
 
 request.body = {
   model: "gpt-4o",
   messages: [
     { role: "system", content: PROMPT },
     { role: "user", content: STAGED }
-  ],
+  ]
 }.to_json
 
 response = http.request(request)
 json = JSON.parse(response.body)
-message = json.dig('choices', 0, 'message', 'content').strip
+message = json.dig("choices", 0, "message", "content").strip
 Git.open(".").commit(message)
 puts message
