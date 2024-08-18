@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = "dorian-commit"
-  s.version = "0.4.1"
+  s.version = "0.4.2"
   s.summary = "commit with ai"
   s.description = s.summary
   s.authors = ["Dorian Marié"]
