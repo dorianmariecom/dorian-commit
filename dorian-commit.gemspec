@@ -3,8 +3,8 @@
 Gem::Specification.new do |s|
   s.name = "dorian-commit"
   s.version = "0.4.1"
-  s.summary = "commit with openai api"
-  s.description = "#{s.summary}\n\ne.g. `commit`"
+  s.summary = "commit with ai"
+  s.description = s.summary
   s.authors = ["Dorian Marié"]
   s.email = "dorian@dorianmarie.com"
   s.files = ["bin/commit"]
