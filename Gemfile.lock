@@ -31,7 +31,6 @@ GEM
       activesupport
       bigdecimal
       dorian-to_struct
-    dorian-times (0.5.2)
     dorian-to_struct (0.5.0)
     drb (2.2.1)
     git (2.1.1)
@@ -113,7 +112,6 @@ PLATFORMS
 
 DEPENDENCIES
   dorian-commit!
-  dorian-times
   rspec
   rubocop-rails-omakase
 

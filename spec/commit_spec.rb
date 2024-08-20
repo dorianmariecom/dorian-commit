@@ -3,6 +3,4 @@
 require "spec_helper"
 
 RSpec.describe "commit" do
-  it "works" do
-  end
 end
