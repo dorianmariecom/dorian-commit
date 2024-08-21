@@ -1,16 +1,13 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require "dorian/arguments"
+require "git"
 require "json"
 require "net/http"
 require "uri"
-require "git"
-
-abort "USAGE: commit" if ARGV.any?
 
 TOKEN_FILE = File.join(Dir.home, ".commit")
-PROMPT =
-  "simple, clear, short, lowercase commit message for the following diff:"
 
 if File.exist?(TOKEN_FILE)
   TOKEN = File.read(TOKEN_FILE).strip
@@ -21,11 +18,22 @@ else
   puts "token written to #{TOKEN_FILE}"
 end
 
-STAGED = `git diff --staged`
+parsed = Dorian::Arguments.parse(version: { alias: :v }, help: { alias: :h })
 
-abort "no staged files" if STAGED.strip.empty?
+abort parsed.help if parsed.options.help
 
-uri = URI("https://api.openai.com/v1/chat/completions")
+if parsed.options.version
+  abort File.read(File.expand_path("../../VERSION", __FILE__))
+end
+
+content = parsed.arguments.join(" ")
+content += parsed.files.map { |file| File.read(file) }.join("\n")
+content += `git diff --staged`
+
+abort "no staged file" if content.empty?
+
+uri = URI.parse("https://api.openai.com/v1/chat/completions")
+
 http = Net::HTTP.new(uri.host, uri.port)
 http.use_ssl = true
 
@@ -40,14 +48,18 @@ request =
 
 request.body = {
   model: "gpt-4o",
-  messages: [
-    { role: "system", content: PROMPT },
-    { role: "user", content: STAGED }
-  ]
+  messages: [{ role: "user", content: }]
 }.to_json
 
 response = http.request(request)
+
 json = JSON.parse(response.body)
-message = json.dig("choices", 0, "message", "content").strip
-Git.open(".").commit(message)
-puts message
+
+message = json.dig("choices", 0, "message", "content")
+
+if message
+  Git.open(".").commit(message)
+  puts message
+else
+  puts JSON.pretty_generate(json)
+end
