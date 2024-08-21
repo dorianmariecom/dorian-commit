@@ -18,6 +18,8 @@ else
   puts "token written to #{TOKEN_FILE}"
 end
 
+PROMPT = "simple, clear, short, lowercase commit message for the following diff:"
+
 parsed = Dorian::Arguments.parse(version: { alias: :v }, help: { alias: :h })
 
 abort parsed.help if parsed.options.help
@@ -48,7 +50,7 @@ request =
 
 request.body = {
   model: "gpt-4o",
-  messages: [{ role: "user", content: }]
+  messages: [{ role: :system, content: PROMPT }, { role: :user, content: }]
 }.to_json
 
 response = http.request(request)
