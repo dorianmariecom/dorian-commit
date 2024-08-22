@@ -18,7 +18,10 @@ else
   puts "token written to #{TOKEN_FILE}"
 end
 
-PROMPT = "simple, clear, short, lowercase commit message for the following diff:"
+PROMPT_1 = "simple, clear, short, lowercase commit message"
+PROMPT_2 = "for the following diff:"
+PROMPT_3 = "for the following git status:"
+PROMPT_4 = "for the following comment:"
 
 parsed = Dorian::Arguments.parse(version: { alias: :v }, help: { alias: :h })
 
@@ -28,11 +31,19 @@ if parsed.options.version
   abort File.read(File.expand_path("../../VERSION", __FILE__))
 end
 
-content = parsed.arguments.join(" ")
-content += parsed.files.map { |file| File.read(file) }.join("\n")
-content += `git diff --staged`
+content_2 = `git diff --staged`
+content_3 = `git status`
+content_4 = parsed.arguments.join(" ")
+content_4 += parsed.files.map { |file| File.read(file) }.join("\n")
 
-abort "no staged file" if content.empty?
+if content_4.empty?
+  messages_4 = []
+else
+  messages_4 = [
+    { role: :system, content: PROMPT_4 },
+    { role: :user, content: content_4 }
+  ]
+end
 
 uri = URI.parse("https://api.openai.com/v1/chat/completions")
 
@@ -50,7 +61,14 @@ request =
 
 request.body = {
   model: "gpt-4o",
-  messages: [{ role: :system, content: PROMPT }, { role: :user, content: }]
+  messages: [
+    { role: :system, content: PROMPT_1 },
+    { role: :system, content: PROMPT_2 },
+    { role: :user, content: content_2 }
+    { role: :system, content: PROMPT_3 },
+    { role: :user, content: content_3 },
+    *messages_4
+  ]
 }.to_json
 
 response = http.request(request)
