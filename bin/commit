@@ -36,6 +36,8 @@ content_3 = `git status`
 content_4 = parsed.arguments.join(" ")
 content_4 += parsed.files.map { |file| File.read(file) }.join("\n")
 
+abort "no staged files" if content_2.empty?
+
 if content_4.empty?
   messages_4 = []
 else
