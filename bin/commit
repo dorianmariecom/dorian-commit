@@ -42,7 +42,7 @@ parsed =
 abort parsed.help if parsed.options.help
 
 if parsed.options.version
-  abort File.read(File.expand_path("../../VERSION", __FILE__))
+  abort File.read(File.expand_path("../VERSION", __dir__))
 end
 
 content_2 = `git diff --staged`
@@ -56,34 +56,28 @@ encoder = Tiktoken.encoding_for_model("gpt-4o")
 
 content_2_encoded = encoder.encode(content_2)
 
-if content_2_encoded.length > parsed.options.tokens
-  messages_2 = []
-else
-  messages_2 = [
-    { role: :system, content: PROMPT_2 },
-    { role: :user, content: content_2 }
-  ]
-end
+messages_2 =
+  if content_2_encoded.length > parsed.options.tokens
+    []
+  else
+    [{ role: :system, content: PROMPT_2 }, { role: :user, content: content_2 }]
+  end
 
 content_3_encoded = encoder.encode(content_3)
 
-if content_3_encoded.length > parsed.options.tokens
-  messages_3 = []
-else
-  messages_3 = [
-    { role: :system, content: PROMPT_3 },
-    { role: :user, content: content_3 }
-  ]
-end
+messages_3 =
+  if content_3_encoded.length > parsed.options.tokens
+    []
+  else
+    [{ role: :system, content: PROMPT_3 }, { role: :user, content: content_3 }]
+  end
 
-if content_4.empty?
-  messages_4 = []
-else
-  messages_4 = [
-    { role: :system, content: PROMPT_4 },
-    { role: :user, content: content_4 }
-  ]
-end
+messages_4 =
+  if content_4.empty?
+    []
+  else
+    [{ role: :system, content: PROMPT_4 }, { role: :user, content: content_4 }]
+  end
 
 uri = URI.parse("https://api.openai.com/v1/chat/completions")
 
