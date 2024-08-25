@@ -24,7 +24,20 @@ PROMPT_2 = "for the following diff:"
 PROMPT_3 = "for the following git status:"
 PROMPT_4 = "for the following comment:"
 
-parsed = Dorian::Arguments.parse(tokens: { type: :integer, alias: :t, default: 1000 }, version: { alias: :v }, help: { alias: :h })
+parsed =
+  Dorian::Arguments.parse(
+    tokens: {
+      type: :integer,
+      alias: :t,
+      default: 1000
+    },
+    version: {
+      alias: :v
+    },
+    help: {
+      alias: :h
+    }
+  )
 
 abort parsed.help if parsed.options.help
 
@@ -59,7 +72,7 @@ if content_3_encoded.length > parsed.options.tokens
 else
   messages_3 = [
     { role: :system, content: PROMPT_3 },
-    { role: :user, content: content_3 },
+    { role: :user, content: content_3 }
   ]
 end
 
