@@ -5,6 +5,7 @@ require "dorian/arguments"
 require "git"
 require "json"
 require "net/http"
+require "tiktoken_ruby"
 require "uri"
 
 TOKEN_FILE = File.join(Dir.home, ".commit")
@@ -23,7 +24,7 @@ PROMPT_2 = "for the following diff:"
 PROMPT_3 = "for the following git status:"
 PROMPT_4 = "for the following comment:"
 
-parsed = Dorian::Arguments.parse(version: { alias: :v }, help: { alias: :h })
+parsed = Dorian::Arguments.parse(tokens: { type: :integer, alias: :t, default: 1000 }, version: { alias: :v }, help: { alias: :h })
 
 abort parsed.help if parsed.options.help
 
@@ -37,6 +38,30 @@ content_4 = parsed.arguments.join(" ")
 content_4 += parsed.files.map { |file| File.read(file) }.join("\n")
 
 abort "no staged files" if content_2.empty?
+
+encoder = Tiktoken.encoding_for_model("gpt-4o")
+
+content_2_encoded = encoder.encode(content_2)
+
+if content_2_encoded.length > parsed.options.tokens
+  messages_2 = []
+else
+  messages_2 = [
+    { role: :system, content: PROMPT_2 },
+    { role: :user, content: content_2 }
+  ]
+end
+
+content_3_encoded = encoder.encode(content_3)
+
+if content_3_encoded.length > parsed.options.tokens
+  messages_3 = []
+else
+  messages_3 = [
+    { role: :system, content: PROMPT_3 },
+    { role: :user, content: content_3 },
+  ]
+end
 
 if content_4.empty?
   messages_4 = []
@@ -65,10 +90,8 @@ request.body = {
   model: "gpt-4o",
   messages: [
     { role: :system, content: PROMPT_1 },
-    { role: :system, content: PROMPT_2 },
-    { role: :user, content: content_2 },
-    { role: :system, content: PROMPT_3 },
-    { role: :user, content: content_3 },
+    *messages_2,
+    *messages_3,
     *messages_4
   ]
 }.to_json
