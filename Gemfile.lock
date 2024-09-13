@@ -110,7 +110,7 @@ GEM
     tiktoken_ruby (0.0.9-x86_64-linux)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
-    unicode-display_width (2.5.0)
+    unicode-display_width (2.6.0)
 
 PLATFORMS
   arm64-darwin-23
