@@ -1,28 +1,44 @@
-# `dorian-each`
+# `dorian-commit`
 
-Evaluates some code on each line of the input
+Generate and create a git commit for staged changes with AI.
 
-e.g. `ls -l | each "puts l.split.first"`
-
-### Install
+## Install
 
 ```bash
-gem install dorian-each
+gem install dorian-commit
 ```
 
-Or as part of my other gems:
+Also included in the aggregate gem:
 
 ```bash
 gem install dorian
 ```
 
-### Usage
-
-From my history:
+## Usage
 
 ```bash
-pbpaste | each "puts line.split('-')[1].split.first" | uniq
-git grep Thing test/ | grep isocode | each "puts l.split(':').first" | sort | uniq | xvim
-cat file.csv | each "code, name = l.split(\"\\t\"); if code.include?(','); puts code; else; puts code.gsub(' ', '') + ',' + name; end"
-git grep thing | grep " doc " | each "puts l.split(':').first" | xvim
+commit [options] [extra context ...] [file ...]
+```
+
+Run `commit -h` for generated option details and `commit -v` for the installed version.
+
+## Notes
+
+- Requires staged changes; it aborts with `no staged files` otherwise.
+- Uses a token from `~/.commit`; if that file is missing, it prompts once and writes it.
+- Commits with the generated message when the API returns one.
+
+## Examples
+
+### Commit staged changes
+
+```bash
+git add README.md
+commit "keep the message short"
+```
+
+### Limit diff/status token budget
+
+```bash
+commit --tokens 800
 ```

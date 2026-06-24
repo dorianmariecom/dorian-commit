@@ -10,15 +10,6 @@ require "uri"
 
 TOKEN_FILE = File.join(Dir.home, ".commit")
 
-if File.exist?(TOKEN_FILE)
-  TOKEN = File.read(TOKEN_FILE).strip
-else
-  print "token: "
-  TOKEN = gets.strip
-  File.write(TOKEN_FILE, TOKEN)
-  puts "token written to #{TOKEN_FILE}"
-end
-
 PROMPT_1 = "simple, clear, short, lowercase commit message"
 PROMPT_2 = "for the following diff:"
 PROMPT_3 = "for the following git status:"
@@ -44,6 +35,17 @@ abort parsed.help if parsed.options.help
 if parsed.options.version
   abort File.read(File.expand_path("../VERSION", __dir__))
 end
+
+token =
+  if File.exist?(TOKEN_FILE)
+    File.read(TOKEN_FILE).strip
+  else
+    print "token: "
+    token = gets.strip
+    File.write(TOKEN_FILE, token)
+    puts "token written to #{TOKEN_FILE}"
+    token
+  end
 
 content_2 = `git diff --staged`
 content_3 = `git status`
@@ -89,7 +91,7 @@ request =
     uri.path,
     {
       "Content-Type" => "application/json",
-      "Authorization" => "Bearer #{TOKEN}"
+      "Authorization" => "Bearer #{token}"
     }
   )
 
